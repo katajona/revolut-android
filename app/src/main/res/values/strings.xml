@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Revolut</string>
+    <string name="error">Something went wrong</string>
+    <string name="timeout">Timeout</string>
+    <string name="unauthorised">Unauthorised</string>
+    <string name="not_found">Not found</string>
+    <string name="unknown">Something went wrong</string>
+    <string name="currency_title">Rates</string>
+</resources>
