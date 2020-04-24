@@ -23,13 +23,13 @@ class ListViewModel(private val githubRepository: GithubRepository) :
     private val changedRate = MutableLiveData<Currency>()
     val currencyList = MediatorLiveData<ArrayList<Currency>>().apply {
         addSource(rates) { map ->
-            val list = getUpdatedList(this.value, selectedRate.value, map)
+            val list = getUpdatedList(this.value, selectedRate.value, map, changedRate.value)
             list?.let {
                 this.postValue(list)
             }
         }
         addSource(selectedRate) { selectedRate ->
-            val list = getUpdatedList(this.value, selectedRate, rates.value)
+            val list = getUpdatedList(this.value, selectedRate, rates.value, changedRate.value)
             list?.let {
                 this.postValue(list)
             }
@@ -46,12 +46,13 @@ class ListViewModel(private val githubRepository: GithubRepository) :
         currentList: ArrayList<Currency>?,
         selectedRate: Currency?,
         rates: HashMap<String, Double>?,
-        changedRate: Currency? = null
+        changedRate: Currency?
     ): ArrayList<Currency>? {
         if (currentList == null || selectedRate == null || rates == null) {
             return currentList
         }
-        changedRate?.let {
+        // If the changed rate is not the selected one then calculate the new value for the selected
+        if (changedRate != null && selectedRate != changedRate) {
             val calculatedSelectedRate = changedRate.amount / (rates[changedRate.country] ?: 1.0)
             this.selectedRate.postValue(Currency(selectedRate.country, calculatedSelectedRate))
         }

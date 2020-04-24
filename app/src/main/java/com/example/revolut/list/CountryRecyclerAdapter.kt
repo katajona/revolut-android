@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -82,22 +83,33 @@ class CountryRecyclerAdapter(
         fun updateRate(currency: Currency) {
             view.amountText.setText(currency.amount.toFormattedString())
             view.amountText.setOnFocusChangeListener { view, focused ->
-                if (!focused) {
+                if (focused) {
+                    setChangingRate(currency)
+                    setCursorToEnd(view.amountText)
+                } else {
                     view.amountText.setText(currency.amount.toFormattedString())
                 }
             }
             view.amountText.doOnTextChanged { text, _, _, _ ->
                 if (view.amountText.hasFocus()) {
                     currency.amount = text.toString().toFormattedDouble()
-                    countryDiffCallback.setChangedRate(currency)
-                    amountChanged(currency)
+                    setChangingRate(currency)
                 }
             }
             view.setOnClickListener {
                 onClick(currency)
                 view.amountText.requestFocus()
-                view.amountText.setSelection(view.amountText.text.length)
+                setCursorToEnd(view.amountText)
             }
+        }
+
+        private fun setChangingRate(currency: Currency) {
+            countryDiffCallback.setChangedRate(currency)
+            amountChanged(currency)
+        }
+
+        private fun setCursorToEnd(editText: EditText) {
+            editText.setSelection(editText.text.length)
         }
     }
 }
