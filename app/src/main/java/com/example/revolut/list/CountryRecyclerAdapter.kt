@@ -1,5 +1,6 @@
 package com.example.revolut.list
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +12,9 @@ import com.example.revolut.BindableAdapter
 import com.example.revolut.R
 import com.example.revolut.data.Currency
 import com.example.revolut.toFormattedDouble
+import com.example.revolut.toFormattedString
 import kotlinx.android.synthetic.main.item_country.view.amountText
 import kotlinx.android.synthetic.main.item_country.view.nameText
-import com.example.revolut.toFormattedString
 
 
 class CountryRecyclerAdapter(
@@ -43,7 +44,26 @@ class CountryRecyclerAdapter(
 
     override fun onBindViewHolder(viewHolder: CountryItemViewHolder, position: Int) {
         viewHolder.bind(getItem(position))
-        0.9.toFormattedString()
+    }
+
+    override fun onBindViewHolder(
+        viewHolder: CountryItemViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(viewHolder, position, payloads);
+        } else {
+            val bundle = payloads[0] as Bundle
+            for (key in bundle.keySet()) {
+                if (key == RATE) {
+                    val rate = bundle.getParcelable<Currency>(key)
+                    rate?.let {
+                        viewHolder.updateRate(it)
+                    }
+                }
+            }
+        }
     }
 
 
@@ -56,8 +76,15 @@ class CountryRecyclerAdapter(
         fun bind(currency: Currency) {
             view.amountText.setText(currency.amount.toFormattedString())
             view.nameText.text = currency.country
-            view.setOnClickListener {
-                onClick(currency)
+            updateRate(currency)
+        }
+
+        fun updateRate(currency: Currency) {
+            view.amountText.setText(currency.amount.toFormattedString())
+            view.amountText.setOnFocusChangeListener { view, focused ->
+                if (!focused) {
+                    view.amountText.setText(currency.amount.toFormattedString())
+                }
             }
             view.amountText.doOnTextChanged { text, _, _, _ ->
                 if (view.amountText.hasFocus()) {
@@ -66,13 +93,21 @@ class CountryRecyclerAdapter(
                     amountChanged(currency)
                 }
             }
+            view.setOnClickListener {
+                onClick(currency)
+                view.amountText.requestFocus()
+                view.amountText.setSelection(view.amountText.text.length)
+            }
         }
     }
 }
 
+private const val RATE = "rate"
+
 class CountryDiffCallback : DiffUtil.ItemCallback<Currency>() {
     // use this so we are not updating our currently edited value
     private var changedRate: Currency? = null
+
     fun setChangedRate(currency: Currency) {
         changedRate = currency
     }
@@ -81,9 +116,16 @@ class CountryDiffCallback : DiffUtil.ItemCallback<Currency>() {
 
 
     override fun areContentsTheSame(p0: Currency, p1: Currency) =
-        if (p1 == changedRate) {
+        if (p1.country == changedRate?.country) {
             true
         } else {
-            p0 == p1
+            p0.amount == p1.amount
         }
+
+
+    override fun getChangePayload(oldItem: Currency, newItem: Currency): Any? {
+        val diff = Bundle()
+        diff.putParcelable(RATE, newItem);
+        return diff
+    }
 }

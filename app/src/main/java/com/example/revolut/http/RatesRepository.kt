@@ -3,7 +3,7 @@ package com.example.revolut.http
 import com.example.revolut.data.CurrencyResponse
 
 interface GithubRepository {
-    suspend fun getRates(): Resource<CurrencyResponse>
+    suspend fun getRates(country: String): Resource<CurrencyResponse>
 }
 
 class GithubRepositoryImpl(
@@ -11,9 +11,9 @@ class GithubRepositoryImpl(
     private val api: RatesApi
 ) : GithubRepository {
 
-    override suspend fun getRates(): Resource<CurrencyResponse> {
+    override suspend fun getRates(country: String): Resource<CurrencyResponse> {
         return responseHandler.wrapResponse {
-            api.getRates()
+            api.getRates(country)
         }
     }
 }

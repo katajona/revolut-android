@@ -7,5 +7,5 @@ import retrofit2.http.Query
 interface RatesApi {
 
     @GET("/api/android/latest")
-    suspend fun getRates(@Query("base") name: String?="EUR"): CurrencyResponse
+    suspend fun getRates(@Query("base") name: String): CurrencyResponse
 }

@@ -45,4 +45,14 @@ class ListFragment : Fragment() {
             })
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getUpdates()
+    }
+
+    override fun onPause() {
+        viewModel.pauseUpdates()
+        super.onPause()
+    }
 }

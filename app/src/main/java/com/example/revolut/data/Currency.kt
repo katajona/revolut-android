@@ -1,3 +1,7 @@
 package com.example.revolut.data
 
-data class Currency(val country: String, var amount: Double = 1.0)
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
+data class Currency(val country: String, var amount: Double = 1.0) : Parcelable
