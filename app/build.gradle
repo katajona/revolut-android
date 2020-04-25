@@ -50,7 +50,6 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.google.android.material:material:$material_version"
-
     // Koin AndroidX Scope features
     implementation "org.koin:koin-androidx-scope:$koin_version"
     // Koin AndroidX ViewModel features

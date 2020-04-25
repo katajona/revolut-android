@@ -15,7 +15,9 @@ import com.example.revolut.data.Currency
 import com.example.revolut.toFormattedDouble
 import com.example.revolut.toFormattedString
 import kotlinx.android.synthetic.main.item_country.view.amountText
+import kotlinx.android.synthetic.main.item_country.view.flag
 import kotlinx.android.synthetic.main.item_country.view.nameText
+import java.util.Locale
 
 
 class CountryRecyclerAdapter(
@@ -77,7 +79,20 @@ class CountryRecyclerAdapter(
         fun bind(currency: Currency) {
             view.amountText.setText(currency.amount.toFormattedString())
             view.nameText.text = currency.country
+            setImage(currency)
             updateRate(currency)
+        }
+
+        private fun setImage(currency: Currency) {
+            var id: Int = view.context.resources.getIdentifier(
+                currency.country.toLowerCase(Locale.ROOT),
+                "drawable",
+                view.context.packageName
+            )
+            if (id == 0) {
+                id=R.drawable.unknown
+            }
+            view.flag.setImageResource(id)
         }
 
         fun updateRate(currency: Currency) {

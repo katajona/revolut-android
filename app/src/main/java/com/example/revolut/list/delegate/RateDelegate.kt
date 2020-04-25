@@ -57,14 +57,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
     private fun createCountryList(response: CurrencyResponse) {
         if (currencyList.value != null)
             return
-        val ratesArray =
-            ArrayList(response.rates
-                .map {
-                    Currency(
-                        it.key,
-                        it.value
-                    )
-                })
+        val ratesArray = ArrayList(response.rates.map { Currency(it.key, it.value) })
         ratesArray.add(0, selectedRate.value)
         currencyList.postValue(ratesArray)
     }
@@ -78,8 +71,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
         if (currentList == null || selectedRate == null || rates == null) {
             return
         }
-        // If the changed rate is not the selected one then calculate the new value for the selected
-        if (changedRate != null && selectedRate != changedRate) {
+        if (changedRate != null) {
             val calculatedSelectedRate = changedRate.amount / (rates[changedRate.country] ?: 1.0)
             this.selectedRate.postValue(Currency(selectedRate.country, calculatedSelectedRate))
         }
@@ -96,8 +88,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
     }
 
     override fun setSelectedRate(rate: Currency) {
-        // should immediately change the value so the next network call can happen with this
-        selectedRate.value = rate
+        selectedRate.postValue(rate)
     }
 
     override fun setChangedRate(rate: Currency) {

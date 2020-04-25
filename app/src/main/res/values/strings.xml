@@ -6,4 +6,7 @@
     <string name="not_found">Not found</string>
     <string name="unknown">Something went wrong</string>
     <string name="currency_title">Rates</string>
+    <string name="_0">0</string>
+    <string name="placeholder_text">Placeholder text</string>
+    <string name="currency_image">Currency image</string>
 </resources>
