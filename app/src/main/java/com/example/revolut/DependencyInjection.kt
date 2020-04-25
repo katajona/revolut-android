@@ -1,10 +1,13 @@
 package com.example.revolut
 
+import com.example.revolut.http.ADDRESS
 import com.example.revolut.http.RatesApi
-import com.example.revolut.http.GithubRepository
-import com.example.revolut.http.GithubRepositoryImpl
+import com.example.revolut.http.RatesRepository
+import com.example.revolut.http.RatesRepositoryImpl
 import com.example.revolut.http.ResponseHandler
 import com.example.revolut.list.ListViewModel
+import com.example.revolut.list.delegate.RateDelegate
+import com.example.revolut.list.delegate.RateDelegateImpl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,12 +20,18 @@ import retrofit2.converter.gson.GsonConverterFactory
 val myModule = module {
     viewModel {
         ListViewModel(
-            githubRepository = get()
+            rateDelegate = get()
         )
     }
 
-    single<GithubRepository> {
-        GithubRepositoryImpl(
+    single<RateDelegate> {
+        RateDelegateImpl(
+            ratesRepository = get()
+        )
+    }
+
+    single<RatesRepository> {
+        RatesRepositoryImpl(
             api = get<Retrofit>().create(RatesApi::class.java),
             responseHandler = get()
         )
@@ -30,7 +39,7 @@ val myModule = module {
 
     single {
         createRetrofit(
-            baseUrl = GITHUB_ADDRESS,
+            baseUrl = ADDRESS,
             client = get()
         )
     }
@@ -77,5 +86,3 @@ fun createInterceptor(): Interceptor {
         chain.proceed(request)
     }
 }
-
-const val GITHUB_ADDRESS = "https://hiring.revolut.codes/"

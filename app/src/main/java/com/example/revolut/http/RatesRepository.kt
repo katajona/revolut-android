@@ -2,14 +2,16 @@ package com.example.revolut.http
 
 import com.example.revolut.data.CurrencyResponse
 
-interface GithubRepository {
+interface RatesRepository {
     suspend fun getRates(country: String): Resource<CurrencyResponse>
 }
 
-class GithubRepositoryImpl(
+const val ADDRESS = "https://hiring.revolut.codes/"
+
+class RatesRepositoryImpl(
     private val responseHandler: ResponseHandler,
     private val api: RatesApi
-) : GithubRepository {
+) : RatesRepository {
 
     override suspend fun getRates(country: String): Resource<CurrencyResponse> {
         return responseHandler.wrapResponse {
