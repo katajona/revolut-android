@@ -20,18 +20,19 @@ interface RateDelegate {
 class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDelegate {
 
     private val rates = MutableLiveData<HashMap<String, Double>>()
-    private val selectedRate = MutableLiveData<Currency>().apply { value = (Currency("EUR")) }
     private val changedRate = MutableLiveData<Currency>()
-
+    private val selectedRate = MediatorLiveData<Currency>().apply {
+        value = (Currency("EUR"))
+        addSource(changedRate) { changedRate ->
+            updateSelectedCountryAmount(changedRate)
+        }
+    }
     override val currencyList = MediatorLiveData<ArrayList<Currency>>().apply {
         addSource(rates) { map ->
-            updateList(this.value, selectedRate.value, map, changedRate.value)
+            updateList(this.value, selectedRate.value, map)
         }
         addSource(selectedRate) { selectedRate ->
-            updateList(this.value, selectedRate, rates.value, changedRate.value)
-        }
-        addSource(changedRate) { changedRate ->
-            updateList(this.value, selectedRate.value, rates.value, changedRate)
+            updateList(this.value, selectedRate, rates.value)
         }
     }
 
@@ -41,16 +42,24 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
             when (result.status) {
                 Status.SUCCESS -> {
                     result.data?.let { response ->
-                        updateRates(response)
                         createCountryList(response)
+                        updateRates(response)
                     }
                 }
-                Status.ERROR -> Log.d("", "")
+                Status.ERROR -> Log.d("network", " error getRatesSelected")
             }
         }
     }
 
-    private fun updateRates(response: CurrencyResponse) {
+    override fun setSelectedRate(rate: Currency) {
+        selectedRate.postValue(rate)
+    }
+
+    override fun setChangedRate(rate: Currency) {
+        changedRate.postValue(rate)
+    }
+
+    internal fun updateRates(response: CurrencyResponse) {
         rates.postValue(response.rates)
     }
 
@@ -62,36 +71,61 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
         currencyList.postValue(ratesArray)
     }
 
+    private fun updateSelectedCountryAmount(changedRate: Currency) {
+        val rates = rates.value
+        val selected = selectedRate.value
+        if (selected != null && rates != null && selected != changedRate) {
+            val calculatedSelectedRate = changedRate.amount / (rates[changedRate.country] ?: 1.0)
+            selectedRate.postValue(Currency(selected.country, calculatedSelectedRate))
+        }
+    }
+
     private fun updateList(
         currentList: ArrayList<Currency>?,
         selectedRate: Currency?,
-        rates: HashMap<String, Double>?,
-        changedRate: Currency?
+        rates: HashMap<String, Double>?
     ) {
         if (currentList == null || selectedRate == null || rates == null) {
             return
         }
-        if (changedRate != null) {
-            val calculatedSelectedRate = changedRate.amount / (rates[changedRate.country] ?: 1.0)
-            this.selectedRate.postValue(Currency(selectedRate.country, calculatedSelectedRate))
+        //If selected currency is still in the rates then it is not up to date -> only move it to the top
+        val list = if (rates[selectedRate.country] != null) {
+            moveSelectedFirst(currentList, selectedRate)
+        } else {
+            listWithMultipliedValues(currentList, selectedRate, rates)
         }
+        currencyList.postValue(list)
+    }
+
+    private fun listWithMultipliedValues(
+        currentList: ArrayList<Currency>,
+        selectedRate: Currency,
+        rates: HashMap<String, Double>
+    ): ArrayList<Currency> {
         val list = ArrayList<Currency>()
         for (item in currentList) {
             if (item.country != selectedRate.country) {
-                val amount = rates[item.country]?.times(selectedRate.amount) ?: item.amount
+                val amount = rates[item.country]?.times(selectedRate.amount) ?: 0.0
                 list.add(Currency(item.country, amount))
             } else {
                 list.add(0, Currency(item.country, selectedRate.amount))
             }
         }
-        currencyList.postValue(list)
+        return list
     }
 
-    override fun setSelectedRate(rate: Currency) {
-        selectedRate.postValue(rate)
-    }
-
-    override fun setChangedRate(rate: Currency) {
-        changedRate.postValue(rate)
+    private fun moveSelectedFirst(
+        currentList: ArrayList<Currency>,
+        selectedRate: Currency
+    ): ArrayList<Currency> {
+        val list = ArrayList<Currency>()
+        for (item in currentList) {
+            if (item.country != selectedRate.country) {
+                list.add(item)
+            } else {
+                list.add(0, item)
+            }
+        }
+        return list
     }
 }
