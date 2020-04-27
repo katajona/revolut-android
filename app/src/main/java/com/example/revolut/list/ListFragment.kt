@@ -33,7 +33,7 @@ class ListFragment : Fragment() {
     }
 
     private fun setupRecycleView() {
-        with(binding.repositoryList) {
+        with(binding.currencyList) {
             layoutManager = LinearLayoutManager(context)
             adapter = CountryRecyclerAdapter(
                 onClick = { viewModel.onItemClicked(it) },
