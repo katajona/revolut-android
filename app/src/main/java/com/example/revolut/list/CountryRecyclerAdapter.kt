@@ -90,7 +90,7 @@ class CountryRecyclerAdapter(
                 view.context.packageName
             )
             if (id == 0) {
-                id=R.drawable.unknown
+                id = R.drawable.unknown
             }
             view.flag.setImageResource(id)
         }

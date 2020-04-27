@@ -24,13 +24,13 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
     private val selectedRate = MediatorLiveData<Currency>().apply {
         value = (Currency("EUR"))
         addSource(changedRate) { changedRate ->
-            updateSelectedCountryAmount(changedRate)
+            updateSelectedCountryAmount(changedRate, rates.value)
+        }
+        addSource(rates) { rates ->
+            updateSelectedCountryAmount(changedRate.value, rates)
         }
     }
     override val currencyList = MediatorLiveData<ArrayList<Currency>>().apply {
-        addSource(rates) { map ->
-            updateList(this.value, selectedRate.value, map)
-        }
         addSource(selectedRate) { selectedRate ->
             updateList(this.value, selectedRate, rates.value)
         }
@@ -71,12 +71,18 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
         currencyList.postValue(ratesArray)
     }
 
-    private fun updateSelectedCountryAmount(changedRate: Currency) {
-        val rates = rates.value
+    private fun updateSelectedCountryAmount(
+        changedRate: Currency?,
+        rates: HashMap<String, Double>?
+    ) {
+        if (rates == null)
+            return
         val selected = selectedRate.value
-        if (selected != null && rates != null && selected != changedRate) {
+        if (selected != null && changedRate != null && selected != changedRate) {
             val calculatedSelectedRate = changedRate.amount / (rates[changedRate.country] ?: 1.0)
             selectedRate.postValue(Currency(selected.country, calculatedSelectedRate))
+        } else {
+            selectedRate.postValue(selected)
         }
     }
 

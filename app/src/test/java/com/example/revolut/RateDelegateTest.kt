@@ -1,17 +1,11 @@
 package com.example.revolut
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.revolut.data.Currency
 import com.example.revolut.http.RatesRepository
 import com.example.revolut.http.Resource
-import com.example.revolut.http.Status
-import com.example.revolut.list.ListViewModel
-import com.example.revolut.list.delegate.RateDelegate
 import com.example.revolut.list.delegate.RateDelegateImpl
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
@@ -23,8 +17,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.BDDMockito
-import org.mockito.BDDMockito.then
-import org.mockito.BDDMockito.times
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
@@ -83,8 +75,37 @@ class RateDelegateTest {
         var data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
         assertThat(data).isEqualTo(currencyList())
 
-        rateDelegate.setChangedRate(hrkIncreased)
+        rateDelegate.setChangedRate(hrkIncreased2)
         data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
-        assertThat(data).isEqualTo(hrkIncreasedList())
+        assertThat(data).isEqualTo(hrkIncreased2List())
+    }
+
+    @Test
+    fun setChangedRateSelected() {
+        rateDelegate.setSelectedRate(euro)
+        rateDelegate.updateRates(currencyResponse())
+        rateDelegate.currencyList.postValue(currencyList())
+        var data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
+        assertThat(data).isEqualTo(currencyList())
+
+        rateDelegate.setChangedRate(euroIncreased2)
+        data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
+        assertThat(data).isEqualTo(euroIncreased2List())
+    }
+
+    @Test
+    fun setChangedRateAfterRateChange() {
+        rateDelegate.updateRates(currencyResponse())
+        rateDelegate.currencyList.postValue(currencyList())
+        var data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
+        assertThat(data).isEqualTo(currencyList())
+
+        rateDelegate.setChangedRate(hrk)
+        data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
+        assertThat(data).isEqualTo(currencyList())
+
+        rateDelegate.updateRates(currencyResponseNewRate())
+        data = LiveDataTestUtil.getValue(rateDelegate.currencyList)
+        assertThat(data).isEqualTo(hrkNerRateList())
     }
 }
