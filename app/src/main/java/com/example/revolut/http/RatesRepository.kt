@@ -3,7 +3,7 @@ package com.example.revolut.http
 import com.example.revolut.data.CurrencyResponse
 
 interface RatesRepository {
-    suspend fun getRates(country: String): Resource<CurrencyResponse>
+    suspend fun getRates(currency: String): Resource<CurrencyResponse>
 }
 
 const val ADDRESS = "https://hiring.revolut.codes/"
@@ -13,9 +13,9 @@ class RatesRepositoryImpl(
     private val api: RatesApi
 ) : RatesRepository {
 
-    override suspend fun getRates(country: String): Resource<CurrencyResponse> {
+    override suspend fun getRates(currency: String): Resource<CurrencyResponse> {
         return responseHandler.wrapResponse {
-            api.getRates(country)
+            api.getRates(currency)
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.example.revolut
 
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.BindingAdapter
@@ -8,7 +7,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import java.text.NumberFormat
 import java.text.ParseException
-import java.util.Locale
 
 interface BindableAdapter<T> {
     fun setData(data: T)
@@ -21,11 +19,6 @@ fun <T> setRecyclerViewProperties(recyclerView: RecyclerView, data: T?) {
         @Suppress("UNCHECKED_CAST")
         (adapter as BindableAdapter<T>).setData(data)
     }
-}
-
-@BindingAdapter("android:visibility")
-fun setVisibility(view: View, value: Boolean?) {
-    view.visibility = if (value != null && value) View.VISIBLE else View.GONE
 }
 
 fun Fragment.setupToolBar(

@@ -20,7 +20,6 @@ import org.mockito.BDDMockito
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
-
 @RunWith(MockitoJUnitRunner::class)
 class RateDelegateTest {
     @Mock

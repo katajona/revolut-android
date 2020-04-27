@@ -1,6 +1,5 @@
 package com.example.revolut
 
-import com.example.revolut.data.CurrencyResponse
 import com.example.revolut.http.RatesApi
 import com.example.revolut.http.RatesRepositoryImpl
 import com.example.revolut.http.ResponseHandler

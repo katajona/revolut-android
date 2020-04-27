@@ -19,7 +19,7 @@ class ListFragmentUIRobot : ExtendedBaseRobot() {
     private val viewModel: ListViewModel = mocksViewModel()
     private lateinit var scenario: FragmentScenario<ListFragment>
     private val currencyList = MutableLiveData<ArrayList<Currency>>()
-    val recyclerViewId = R.id.currencyList
+    private val recyclerViewId = R.id.currencyList
     override fun setupInjections() {
         setupKoinModule {
             viewModel {
@@ -35,7 +35,6 @@ class ListFragmentUIRobot : ExtendedBaseRobot() {
     override fun setupScenario() {
         scenario = setupFragmentScenario(theme = R.style.AppTheme)
     }
-
 
     private fun mocksViewModel(): ListViewModel {
         val viewModel = mock(ListViewModel::class.java)
@@ -55,7 +54,6 @@ class ListFragmentUIRobot : ExtendedBaseRobot() {
         editTextInsideRecyclerView(
             recyclerViewId,
             position,
-            R.id.amountText,
             amount
         )
     }
@@ -68,7 +66,7 @@ class ListFragmentUIRobot : ExtendedBaseRobot() {
         for (i in 0 until list.size) {
             checkTextInsideRecyclerView(
                 recyclerViewId, i,
-                R.id.nameText, list[i].country
+                R.id.nameText, list[i].name
             )
         }
     }
@@ -89,7 +87,7 @@ class ListFragmentUIRobot : ExtendedBaseRobot() {
     }
 
     fun verifyAmountChangedCalled(position: Int) {
-        // Should be called to times because it is also called when edit text gets focus to fix value
+        // Should be called 2 times because it is also called when edit text gets focus to fix value
         // and prevent override by new network call
         then(viewModel).should(times(2)).amountChanged(currencyList.value!![position])
     }

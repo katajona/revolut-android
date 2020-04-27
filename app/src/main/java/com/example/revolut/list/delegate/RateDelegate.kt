@@ -17,17 +17,19 @@ interface RateDelegate {
     suspend fun getRatesSelected()
 }
 
+private const val DEFAULT_CURRENCY = "EUR"
+
 class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDelegate {
 
     private val rates = MutableLiveData<HashMap<String, Double>>()
     private val changedRate = MutableLiveData<Currency>()
     private val selectedRate = MediatorLiveData<Currency>().apply {
-        value = (Currency("EUR"))
+        value = (Currency(DEFAULT_CURRENCY))
         addSource(changedRate) { changedRate ->
-            updateSelectedCountryAmount(changedRate, rates.value)
+            updateSelectedCurrencyAmount(changedRate, rates.value)
         }
         addSource(rates) { rates ->
-            updateSelectedCountryAmount(changedRate.value, rates)
+            updateSelectedCurrencyAmount(changedRate.value, rates)
         }
     }
     override val currencyList = MediatorLiveData<ArrayList<Currency>>().apply {
@@ -38,11 +40,11 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
 
     override suspend fun getRatesSelected() {
         selectedRate.value?.let {
-            val result = ratesRepository.getRates(it.country)
+            val result = ratesRepository.getRates(it.name)
             when (result.status) {
                 Status.SUCCESS -> {
                     result.data?.let { response ->
-                        createCountryList(response)
+                        createCurrencyList(response)
                         updateRates(response)
                     }
                 }
@@ -63,7 +65,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
         rates.postValue(response.rates)
     }
 
-    private fun createCountryList(response: CurrencyResponse) {
+    private fun createCurrencyList(response: CurrencyResponse) {
         if (currencyList.value != null)
             return
         val ratesArray = ArrayList(response.rates.map { Currency(it.key, it.value) })
@@ -71,7 +73,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
         currencyList.postValue(ratesArray)
     }
 
-    private fun updateSelectedCountryAmount(
+    private fun updateSelectedCurrencyAmount(
         changedRate: Currency?,
         rates: HashMap<String, Double>?
     ) {
@@ -79,8 +81,8 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
             return
         val selected = selectedRate.value
         if (selected != null && changedRate != null && selected != changedRate) {
-            val calculatedSelectedRate = changedRate.amount / (rates[changedRate.country] ?: 1.0)
-            selectedRate.postValue(Currency(selected.country, calculatedSelectedRate))
+            val calculatedSelectedRate = changedRate.amount / (rates[changedRate.name] ?: 1.0)
+            selectedRate.postValue(Currency(selected.name, calculatedSelectedRate))
         } else {
             selectedRate.postValue(selected)
         }
@@ -95,7 +97,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
             return
         }
         //If selected currency is still in the rates then it is not up to date -> only move it to the top
-        val list = if (rates[selectedRate.country] != null) {
+        val list = if (rates[selectedRate.name] != null) {
             moveSelectedFirst(currentList, selectedRate)
         } else {
             listWithMultipliedValues(currentList, selectedRate, rates)
@@ -110,11 +112,11 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
     ): ArrayList<Currency> {
         val list = ArrayList<Currency>()
         for (item in currentList) {
-            if (item.country != selectedRate.country) {
-                val amount = rates[item.country]?.times(selectedRate.amount) ?: 0.0
-                list.add(Currency(item.country, amount))
+            if (item.name != selectedRate.name) {
+                val amount = rates[item.name]?.times(selectedRate.amount) ?: 0.0
+                list.add(Currency(item.name, amount))
             } else {
-                list.add(0, Currency(item.country, selectedRate.amount))
+                list.add(0, selectedRate)
             }
         }
         return list
@@ -126,7 +128,7 @@ class RateDelegateImpl(private val ratesRepository: RatesRepository) : RateDeleg
     ): ArrayList<Currency> {
         val list = ArrayList<Currency>()
         for (item in currentList) {
-            if (item.country != selectedRate.country) {
+            if (item.name != selectedRate.name) {
                 list.add(item)
             } else {
                 list.add(0, item)

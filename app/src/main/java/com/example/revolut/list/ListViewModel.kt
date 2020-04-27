@@ -9,6 +9,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+internal const val SECOND = 1000L
+
 @OpenForTest
 class ListViewModel(rateDelegate: RateDelegate) : ViewModel(),
     RateDelegate by rateDelegate {
@@ -27,7 +29,7 @@ class ListViewModel(rateDelegate: RateDelegate) : ViewModel(),
         updateJob = viewModelScope.launch {
             while (true) {
                 getRatesSelected()
-                delay(1000)
+                delay(SECOND)
             }
         }
     }

@@ -3,6 +3,7 @@ package com.example.revolut
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.revolut.data.Currency
 import com.example.revolut.list.ListViewModel
+import com.example.revolut.list.SECOND
 import com.example.revolut.list.delegate.RateDelegate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -20,7 +21,6 @@ import org.mockito.BDDMockito.then
 import org.mockito.BDDMockito.times
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-
 
 @RunWith(MockitoJUnitRunner::class)
 class ListViewModelTest {
@@ -62,9 +62,10 @@ class ListViewModelTest {
 
     @Test
     fun getUpdates() = testDispatcher.runBlockingTest {
+        val times = 5
         listViewModel.getUpdates()
-        delay(5000)
+        delay(times * SECOND)
         listViewModel.pauseUpdates()
-        then(rateDelegate).should(times(5)).getRatesSelected()
+        then(rateDelegate).should(times(times)).getRatesSelected()
     }
 }

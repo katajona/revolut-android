@@ -14,19 +14,19 @@ import com.example.revolut.R
 import com.example.revolut.data.Currency
 import com.example.revolut.toFormattedDouble
 import com.example.revolut.toFormattedString
-import kotlinx.android.synthetic.main.item_country.view.amountText
-import kotlinx.android.synthetic.main.item_country.view.flag
-import kotlinx.android.synthetic.main.item_country.view.nameText
+import kotlinx.android.synthetic.main.item_currency.view.amountText
+import kotlinx.android.synthetic.main.item_currency.view.flag
+import kotlinx.android.synthetic.main.item_currency.view.nameText
 import java.util.Locale
 
 
-class CountryRecyclerAdapter(
+class CurrencyRecyclerAdapter(
     private val onClick: (Currency) -> Unit,
     private val amountChanged: (Currency) -> Unit,
-    private val countryDiffCallback: CountryDiffCallback = CountryDiffCallback()
+    private val currencyDiffCallback: CurrencyDiffCallback = CurrencyDiffCallback()
 ) :
-    ListAdapter<Currency, CountryRecyclerAdapter.CountryItemViewHolder>(
-        countryDiffCallback
+    ListAdapter<Currency, CurrencyRecyclerAdapter.CurrencyItemViewHolder>(
+        currencyDiffCallback
     ),
     BindableAdapter<List<Currency>> {
 
@@ -34,23 +34,23 @@ class CountryRecyclerAdapter(
         submitList(data)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CountryItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.item_country, parent, false)
-        return CountryItemViewHolder(
+        val view = inflater.inflate(R.layout.item_currency, parent, false)
+        return CurrencyItemViewHolder(
             view,
             onClick,
             amountChanged,
-            countryDiffCallback
+            currencyDiffCallback
         )
     }
 
-    override fun onBindViewHolder(viewHolder: CountryItemViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: CurrencyItemViewHolder, position: Int) {
         viewHolder.bind(getItem(position))
     }
 
     override fun onBindViewHolder(
-        viewHolder: CountryItemViewHolder,
+        viewHolder: CurrencyItemViewHolder,
         position: Int,
         payloads: MutableList<Any>
     ) {
@@ -70,22 +70,22 @@ class CountryRecyclerAdapter(
     }
 
 
-    class CountryItemViewHolder(
+    class CurrencyItemViewHolder(
         private val view: View,
         private val onClick: (Currency) -> Unit,
         private val amountChanged: (Currency) -> Unit,
-        private val countryDiffCallback: CountryDiffCallback
+        private val currencyDiffCallback: CurrencyDiffCallback
     ) : RecyclerView.ViewHolder(view) {
         fun bind(currency: Currency) {
             view.amountText.setText(currency.amount.toFormattedString())
-            view.nameText.text = currency.country
+            view.nameText.text = currency.name
             setImage(currency)
             updateRate(currency)
         }
 
         private fun setImage(currency: Currency) {
             var id: Int = view.context.resources.getIdentifier(
-                currency.country.toLowerCase(Locale.ROOT),
+                currency.name.toLowerCase(Locale.ROOT),
                 "drawable",
                 view.context.packageName
             )
@@ -119,7 +119,7 @@ class CountryRecyclerAdapter(
         }
 
         private fun setChangingRate(currency: Currency) {
-            countryDiffCallback.setChangedRate(currency)
+            currencyDiffCallback.setChangedRate(currency)
             amountChanged(currency)
         }
 
@@ -131,7 +131,7 @@ class CountryRecyclerAdapter(
 
 private const val RATE = "rate"
 
-class CountryDiffCallback : DiffUtil.ItemCallback<Currency>() {
+class CurrencyDiffCallback : DiffUtil.ItemCallback<Currency>() {
     // use this so we are not updating our currently edited value
     private var changedRate: Currency? = null
 
@@ -139,11 +139,11 @@ class CountryDiffCallback : DiffUtil.ItemCallback<Currency>() {
         changedRate = currency
     }
 
-    override fun areItemsTheSame(p0: Currency, p1: Currency) = p0.country == p1.country
+    override fun areItemsTheSame(p0: Currency, p1: Currency) = p0.name == p1.name
 
 
     override fun areContentsTheSame(p0: Currency, p1: Currency) =
-        if (p1.country == changedRate?.country) {
+        if (p1.name == changedRate?.name) {
             true
         } else {
             p0.amount == p1.amount

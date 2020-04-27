@@ -112,6 +112,4 @@ class FormatterTest {
         val amount = "drf"
         assertThat(amount.toFormattedDouble()).isEqualTo(expected)
     }
-
-
 }

@@ -35,7 +35,7 @@ class ListFragment : Fragment() {
     private fun setupRecycleView() {
         with(binding.currencyList) {
             layoutManager = LinearLayoutManager(context)
-            adapter = CountryRecyclerAdapter(
+            adapter = CurrencyRecyclerAdapter(
                 onClick = { viewModel.onItemClicked(it) },
                 amountChanged = { viewModel.amountChanged(it) })
             adapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {

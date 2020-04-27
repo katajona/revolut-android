@@ -7,20 +7,20 @@ const val increase2 = 2.0
 val euro = Currency("EUR", 1.0)
 val chf = Currency("CHF", 1.4)
 val hrk = Currency("HRK", 1.9)
-val euroDecreased2 = Currency(euro.country, euro.amount / increase2)
-val chfDecreased2 = Currency(chf.country, chf.amount / increase2)
-val euroIncreased2 = Currency(euro.country, euro.amount * increase2)
-val chfIncreased2 = Currency(chf.country, chf.amount * increase2)
-val hrkIncreased2 = Currency(hrk.country, hrk.amount * increase2)
+val euroDecreased2 = Currency(euro.name, euro.amount / increase2)
+val chfDecreased2 = Currency(chf.name, chf.amount / increase2)
+val euroIncreased2 = Currency(euro.name, euro.amount * increase2)
+val chfIncreased2 = Currency(chf.name, chf.amount * increase2)
+val hrkIncreased2 = Currency(hrk.name, hrk.amount * increase2)
 
 fun currencyResponse() = CurrencyResponse(
-    rates = hashMapOf(Pair(chf.country, chf.amount), Pair(hrk.country, hrk.amount)),
-    baseCurrency = euro.country
+    rates = hashMapOf(Pair(chf.name, chf.amount), Pair(hrk.name, hrk.amount)),
+    baseCurrency = euro.name
 )
 
 fun currencyResponseNewRate() = CurrencyResponse(
-    rates = hashMapOf(Pair(chf.country, chf.amount), Pair(hrk.country, hrkIncreased2.amount)),
-    baseCurrency = euro.country
+    rates = hashMapOf(Pair(chf.name, chf.amount), Pair(hrk.name, hrkIncreased2.amount)),
+    baseCurrency = euro.name
 )
 
 fun currencyList() = arrayListOf(
